@@ -147,35 +147,17 @@
         // Reviews page specific: load all comments with pagination
         const COMMENTS_PER_PAGE = 10;
         let currentPage = 1;
-        let allCommentsData = [];
 
-        async function loadAllComments() {
+        function renderAllComments() {
             const list = document.getElementById('allCommentsList');
             const countEl = document.getElementById('totalReviews');
+            const allComments = getAllComments();
 
-            list.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading reviews...</div>';
+            countEl.textContent = allComments.length;
 
-            try {
-                const response = await fetch(SHEET_API_URL + '?action=getComments');
-                const data = await response.json();
+            const totalPages = Math.ceil(allComments.length / COMMENTS_PER_PAGE);
 
-                if (data.success) {
-                    allCommentsData = data.comments;
-                    countEl.textContent = allCommentsData.length;
-                    renderPaginatedComments();
-                } else {
-                    list.innerHTML = '<div class="no-comments"><i class="fas fa-exclamation-circle"></i><p>Could not load reviews. Please try again later.</p></div>';
-                }
-            } catch (err) {
-                list.innerHTML = '<div class="no-comments"><i class="fas fa-exclamation-circle"></i><p>Could not load reviews. Please check your connection.</p></div>';
-            }
-        }
-
-        function renderPaginatedComments() {
-            const list = document.getElementById('allCommentsList');
-            const totalPages = Math.ceil(allCommentsData.length / COMMENTS_PER_PAGE);
-
-            if (allCommentsData.length === 0) {
+            if (allComments.length === 0) {
                 list.innerHTML = '<div class="no-comments"><i class="fas fa-comments"></i><p>No reviews yet. Be the first to share your experience!</p></div>';
                 document.getElementById('pagination').style.display = 'none';
                 return;
@@ -183,23 +165,25 @@
 
             const start = (currentPage - 1) * COMMENTS_PER_PAGE;
             const end = start + COMMENTS_PER_PAGE;
-            const pageComments = allCommentsData.slice(start, end);
+            const pageComments = allComments.slice(start, end);
 
-            list.innerHTML = pageComments.map((comment, index) => `
-                <div class="comment-item" data-index="${start + index}">
+            list.innerHTML = pageComments.map((comment) => `
+                <div class="comment-item" data-id="${comment.id}">
                     <div class="comment-header">
                         <div class="comment-author">
                             <div class="comment-avatar">${comment.name.charAt(0).toUpperCase()}</div>
                             <div class="comment-meta">
                                 <h4>${escapeHtml(comment.name)}</h4>
-                                <time>${formatDate(comment.timestamp)}</time>
+                                <time>${formatDate(comment.date)}</time>
                             </div>
                         </div>
                         ${isAdmin ? `
                             <div class="comment-actions">
+                                ${!comment.isPreloaded ? `
                                 <button class="edit-btn" onclick="editComment('${comment.id}')" title="Edit">
                                     <i class="fas fa-pen"></i>
                                 </button>
+                                ` : ''}
                                 <button onclick="deleteComment('${comment.id}')" title="Delete">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -218,17 +202,18 @@
         }
 
         function changePage(direction) {
-            const totalPages = Math.ceil(allCommentsData.length / COMMENTS_PER_PAGE);
+            const allComments = getAllComments();
+            const totalPages = Math.ceil(allComments.length / COMMENTS_PER_PAGE);
             currentPage += direction;
             if (currentPage < 1) currentPage = 1;
             if (currentPage > totalPages) currentPage = totalPages;
-            renderPaginatedComments();
+            renderAllComments();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Override the homepage render for this page
+        // Load all comments on page load
         if (document.getElementById('allCommentsList')) {
-            loadAllComments();
+            renderAllComments();
         }
     </script>
 </body>

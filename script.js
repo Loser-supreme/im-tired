@@ -1,9 +1,4 @@
 // ========================
-// CONFIG - REPLACE THIS URL AFTER GOOGLE SHEETS SETUP
-// ========================
-const SHEET_API_URL = 'https://script.google.com/macros/s/AKfycbwQe71imCcY5_YIIkneNKH6QAa3KrpgsrRyqOLVuxjUcNxeqNOOyVrcwUNWuny64cXy/exec';
-
-// ========================
 // THEME TOGGLE
 // ========================
 const themeToggle = document.getElementById('themeToggle');
@@ -92,10 +87,79 @@ if (navbar) {
 }
 
 // ========================
-// COMMENTS SYSTEM - GOOGLE SHEETS
+// COMMENTS SYSTEM - LOCALSTORAGE + PRE-LOADED
 // ========================
 let isAdmin = false;
 const ADMIN_PASSWORD = 'skyadmin2026';
+
+// Pre-loaded sample comments (these show for ALL visitors)
+const PRELOADED_COMMENTS = [
+    {
+        id: 'pre-1',
+        name: 'James M.',
+        text: 'Absolutely incredible experience. Ariana is professional, warm, and knows exactly how to make you feel comfortable. The massage was therapeutic and the company was unforgettable. Will definitely book again!',
+        date: new Date(Date.now() - 86400000 * 2).toISOString(),
+        isPreloaded: true
+    },
+    {
+        id: 'pre-2',
+        name: 'Anonymous',
+        text: 'The 2-hour session was worth every penny. The nuru massage was out of this world. She is truly skilled and makes you feel like the only person in the room. Highly recommend!',
+        date: new Date(Date.now() - 86400000 * 5).toISOString(),
+        isPreloaded: true
+    },
+    {
+        id: 'pre-3',
+        name: 'D.',
+        text: 'Discreet, classy, and absolutely stunning. The GFE experience felt genuine and natural. Ariana is a rare gem. Five stars all the way.',
+        date: new Date(Date.now() - 86400000 * 8).toISOString(),
+        isPreloaded: true
+    },
+    {
+        id: 'pre-4',
+        name: 'Mr. K',
+        text: 'I have been to many providers, but Ariana stands out. Her attention to detail, her conversation, and her skills are unmatched. The full night experience was magical.',
+        date: new Date(Date.now() - 86400000 * 12).toISOString(),
+        isPreloaded: true
+    },
+    {
+        id: 'pre-5',
+        name: 'Rico',
+        text: 'First time booking and I was nervous, but Ariana made me feel at ease immediately. The bodyrub was heavenly and her personality is even better. Already planning my next visit.',
+        date: new Date(Date.now() - 86400000 * 15).toISOString(),
+        isPreloaded: true
+    },
+    {
+        id: 'pre-6',
+        name: 'T. Williams',
+        text: 'The VIP treatment is no joke. Every detail was perfect from start to finish. She is the definition of luxury companionship. Worth every single dollar.',
+        date: new Date(Date.now() - 86400000 * 18).toISOString(),
+        isPreloaded: true
+    },
+    {
+        id: 'pre-7',
+        name: 'Mystery Guest',
+        text: 'Cam session was fire. She is responsive, creative, and knows how to keep things exciting even through a screen. Custom content was delivered fast and exceeded expectations.',
+        date: new Date(Date.now() - 86400000 * 21).toISOString(),
+        isPreloaded: true
+    },
+    {
+        id: 'pre-8',
+        name: 'L.',
+        text: 'The domination session was exactly what I needed. Safe, consensual, and thrilling. She reads your energy perfectly and knows when to push and when to hold back. A true professional.',
+        date: new Date(Date.now() - 86400000 * 25).toISOString(),
+        isPreloaded: true
+    }
+];
+
+// Get all comments (preloaded + user-submitted from localStorage)
+function getAllComments() {
+    const userComments = JSON.parse(localStorage.getItem('skyComments')) || [];
+    // Combine preloaded + user comments, sort by date newest first
+    const all = [...PRELOADED_COMMENTS, ...userComments];
+    all.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return all;
+}
 
 function escapeHtml(text) {
     const div = document.createElement('div');
@@ -114,66 +178,59 @@ function formatDate(dateStr) {
     });
 }
 
-// Load comments for homepage (latest 3)
-async function loadHomepageComments() {
+// Render comments for homepage (latest 3)
+function renderHomepageComments() {
     const list = document.getElementById('commentsList');
     const seeMoreCount = document.getElementById('seeMoreCount');
 
     if (!list) return;
 
-    list.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading reviews...</div>';
+    const comments = getAllComments();
 
-    try {
-        const response = await fetch(SHEET_API_URL + '?action=getComments');
-        const data = await response.json();
-
-        if (data.success) {
-            const comments = data.comments;
-            seeMoreCount.textContent = comments.length > 3 ? comments.length - 3 : 0;
-
-            if (comments.length === 0) {
-                list.innerHTML = '<div class="no-comments"><i class="fas fa-comments"></i><p>No reviews yet. Be the first to share your experience!</p></div>';
-                return;
-            }
-
-            // Show only latest 3
-            const latestComments = comments.slice(0, 3);
-            list.innerHTML = latestComments.map((comment) => `
-                <div class="comment-item" data-id="${comment.id}">
-                    <div class="comment-header">
-                        <div class="comment-author">
-                            <div class="comment-avatar">${comment.name.charAt(0).toUpperCase()}</div>
-                            <div class="comment-meta">
-                                <h4>${escapeHtml(comment.name)}</h4>
-                                <time>${formatDate(comment.timestamp)}</time>
-                            </div>
-                        </div>
-                        ${isAdmin ? `
-                            <div class="comment-actions">
-                                <button class="edit-btn" onclick="editComment('${comment.id}')" title="Edit">
-                                    <i class="fas fa-pen"></i>
-                                </button>
-                                <button onclick="deleteComment('${comment.id}')" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        ` : ''}
-                    </div>
-                    <div class="comment-text">${escapeHtml(comment.text)}</div>
-                </div>
-            `).join('');
-        } else {
-            list.innerHTML = '<div class="no-comments"><i class="fas fa-exclamation-circle"></i><p>Could not load reviews. Please try again later.</p></div>';
-        }
-    } catch (err) {
-        list.innerHTML = '<div class="no-comments"><i class="fas fa-exclamation-circle"></i><p>Could not load reviews. Please check your connection.</p></div>';
+    if (seeMoreCount) {
+        const extraCount = Math.max(0, comments.length - 3);
+        seeMoreCount.textContent = extraCount > 0 ? extraCount : '';
+        seeMoreCount.style.display = extraCount > 0 ? 'inline-flex' : 'none';
     }
+
+    if (comments.length === 0) {
+        list.innerHTML = '<div class="no-comments"><i class="fas fa-comments"></i><p>No reviews yet. Be the first to share your experience!</p></div>';
+        return;
+    }
+
+    const latestComments = comments.slice(0, 3);
+    list.innerHTML = latestComments.map((comment) => `
+        <div class="comment-item" data-id="${comment.id}">
+            <div class="comment-header">
+                <div class="comment-author">
+                    <div class="comment-avatar">${comment.name.charAt(0).toUpperCase()}</div>
+                    <div class="comment-meta">
+                        <h4>${escapeHtml(comment.name)}</h4>
+                        <time>${formatDate(comment.date)}</time>
+                    </div>
+                </div>
+                ${isAdmin ? `
+                    <div class="comment-actions">
+                        ${!comment.isPreloaded ? `
+                        <button class="edit-btn" onclick="editComment('${comment.id}')" title="Edit">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                        ` : ''}
+                        <button onclick="deleteComment('${comment.id}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                ` : ''}
+            </div>
+            <div class="comment-text">${escapeHtml(comment.text)}</div>
+        </div>
+    `).join('');
 }
 
-// Submit comment to Google Sheets
+// Submit comment (localStorage)
 const commentForm = document.getElementById('commentForm');
 if (commentForm) {
-    commentForm.addEventListener('submit', async (e) => {
+    commentForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const name = document.getElementById('commentName').value.trim();
         const text = document.getElementById('commentText').value.trim();
@@ -184,131 +241,101 @@ if (commentForm) {
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
         submitBtn.disabled = true;
 
-        try {
-            const response = await fetch(SHEET_API_URL + '?action=addComment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, text })
+        // Simulate network delay for realism
+        setTimeout(() => {
+            const userComments = JSON.parse(localStorage.getItem('skyComments')) || [];
+            userComments.unshift({
+                id: 'user-' + Date.now(),
+                name: name,
+                text: text,
+                date: new Date().toISOString(),
+                isPreloaded: false
             });
+            localStorage.setItem('skyComments', JSON.stringify(userComments));
 
-            const data = await response.json();
+            showToast('Review submitted successfully!', 'success');
+            commentForm.reset();
 
-            if (data.success) {
-                showToast('Review submitted successfully!', 'success');
-                commentForm.reset();
-                // Reload comments
-                if (document.getElementById('allCommentsList')) {
-                    loadAllComments();
-                } else {
-                    loadHomepageComments();
-                }
+            if (document.getElementById('allCommentsList')) {
+                renderAllComments();
             } else {
-                showToast('Failed to submit review. Please try again.', 'error');
+                renderHomepageComments();
             }
-        } catch (err) {
-            showToast('Network error. Please check your connection.', 'error');
-        } finally {
+
             submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Review';
             submitBtn.disabled = false;
-        }
+        }, 800);
     });
 }
 
-async function deleteComment(id) {
+function deleteComment(id) {
     if (!isAdmin) return;
     if (!confirm('Are you sure you want to delete this review?')) return;
 
-    try {
-        const response = await fetch(SHEET_API_URL + '?action=deleteComment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            showToast('Review deleted successfully', 'success');
-            if (document.getElementById('allCommentsList')) {
-                loadAllComments();
-            } else {
-                loadHomepageComments();
-            }
-        } else {
-            showToast('Failed to delete review', 'error');
-        }
-    } catch (err) {
-        showToast('Network error', 'error');
-    }
-}
-
-async function editComment(id) {
-    if (!isAdmin) return;
-
-    // Find the comment text
-    const commentText = prompt('Edit review:');
-    if (commentText === null || commentText.trim() === '') return;
-
-    try {
-        const response = await fetch(SHEET_API_URL + '?action=editComment', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, text: commentText.trim() })
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-            showToast('Review updated successfully', 'success');
-            if (document.getElementById('allCommentsList')) {
-                loadAllComments();
-            } else {
-                loadHomepageComments();
-            }
-        } else {
-            showToast('Failed to update review', 'error');
-        }
-    } catch (err) {
-        showToast('Network error', 'error');
-    }
-}
-
-async function clearAllComments() {
-    if (!isAdmin) return;
-    if (!confirm('Are you sure you want to delete ALL reviews? This cannot be undone.')) return;
-
-    // For Google Sheets, admin should clear manually or we can add a clear endpoint
-    showToast('Please clear all rows from the Google Sheet manually.', 'info');
-}
-
-async function loadSampleComments() {
-    if (!isAdmin) return;
-
-    const sampleComments = [
-        { name: 'James M.', text: 'Absolutely incredible experience. Ariana is professional, warm, and knows exactly how to make you feel comfortable. The massage was therapeutic and the company was unforgettable. Will definitely book again!' },
-        { name: 'Anonymous', text: 'The 2-hour session was worth every penny. The nuru massage was out of this world. She is truly skilled and makes you feel like the only person in the room. Highly recommend!' },
-        { name: 'D.', text: 'Discreet, classy, and absolutely stunning. The GFE experience felt genuine and natural. Ariana is a rare gem. Five stars all the way.' },
-        { name: 'Mr. K', text: 'I have been to many providers, but Ariana stands out. Her attention to detail, her conversation, and her skills are unmatched. The full night experience was magical.' }
-    ];
-
-    for (const comment of sampleComments) {
-        try {
-            await fetch(SHEET_API_URL + '?action=addComment', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(comment)
-            });
-        } catch (err) {
-            console.error('Failed to add sample comment:', err);
-        }
-    }
-
-    showToast('Sample reviews loaded', 'success');
-    if (document.getElementById('allCommentsList')) {
-        loadAllComments();
+    // Check if it's a preloaded comment
+    const preloadedIndex = PRELOADED_COMMENTS.findIndex(c => c.id === id);
+    if (preloadedIndex !== -1) {
+        PRELOADED_COMMENTS.splice(preloadedIndex, 1);
     } else {
-        loadHomepageComments();
+        // Remove from localStorage
+        let userComments = JSON.parse(localStorage.getItem('skyComments')) || [];
+        userComments = userComments.filter(c => c.id !== id);
+        localStorage.setItem('skyComments', JSON.stringify(userComments));
     }
+
+    showToast('Review deleted successfully', 'success');
+    if (document.getElementById('allCommentsList')) {
+        renderAllComments();
+    } else {
+        renderHomepageComments();
+    }
+}
+
+function editComment(id) {
+    if (!isAdmin) return;
+
+    const allComments = getAllComments();
+    const comment = allComments.find(c => c.id === id);
+    if (!comment) return;
+
+    const newText = prompt('Edit review:', comment.text);
+    if (newText === null || newText.trim() === '') return;
+
+    if (comment.isPreloaded) {
+        comment.text = newText.trim();
+    } else {
+        let userComments = JSON.parse(localStorage.getItem('skyComments')) || [];
+        const userComment = userComments.find(c => c.id === id);
+        if (userComment) {
+            userComment.text = newText.trim();
+            localStorage.setItem('skyComments', JSON.stringify(userComments));
+        }
+    }
+
+    showToast('Review updated successfully', 'success');
+    if (document.getElementById('allCommentsList')) {
+        renderAllComments();
+    } else {
+        renderHomepageComments();
+    }
+}
+
+function clearAllComments() {
+    if (!isAdmin) return;
+    if (!confirm('Are you sure you want to delete ALL user reviews? Preloaded reviews will remain.')) return;
+
+    localStorage.removeItem('skyComments');
+    showToast('All user reviews cleared', 'info');
+    if (document.getElementById('allCommentsList')) {
+        renderAllComments();
+    } else {
+        renderHomepageComments();
+    }
+}
+
+function loadSampleComments() {
+    if (!isAdmin) return;
+    showToast('Sample comments are already pre-loaded!', 'info');
 }
 
 // ========================
@@ -356,9 +383,9 @@ function loginAdmin() {
         adminPanel.classList.add('active');
         closeAdminModal();
         if (document.getElementById('allCommentsList')) {
-            loadAllComments();
+            renderAllComments();
         } else {
-            loadHomepageComments();
+            renderHomepageComments();
         }
         showToast('Admin mode activated', 'success');
     } else {
@@ -372,9 +399,9 @@ function logoutAdmin() {
     isAdmin = false;
     adminPanel.classList.remove('active');
     if (document.getElementById('allCommentsList')) {
-        loadAllComments();
+        renderAllComments();
     } else {
-        loadHomepageComments();
+        renderHomepageComments();
     }
     showToast('Logged out successfully', 'info');
 }
@@ -485,5 +512,5 @@ if (galleryItems.length > 0 && lightbox) {
 // INITIAL LOAD
 // ========================
 if (document.getElementById('commentsList')) {
-    loadHomepageComments();
+    renderHomepageComments();
 }
