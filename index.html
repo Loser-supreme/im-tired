@@ -28,7 +28,6 @@
                 <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
                     <i class="fas fa-sun"></i>
                 </button>
-                <button class="admin-btn" id="adminBtn">Admin</button>
                 <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
             </div>
         </div>
@@ -96,93 +95,63 @@
         <div class="gallery-grid">
             <div class="gallery-item large">
                 <img src="Images/IMG-20260613-WA0044.jpg" alt="Gallery Image 1" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
             <div class="gallery-item">
                 <img src="Images/IMG-20260613-WA0045.jpg" alt="Gallery Image 2" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
             <div class="gallery-item">
                 <img src="Images/IMG-20260613-WA0046.jpg" alt="Gallery Image 3" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
             <div class="gallery-item">
                 <img src="Images/IMG-20260613-WA0047.jpg" alt="Gallery Image 4" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
             <div class="gallery-item">
                 <img src="Images/IMG-20260613-WA0048.jpg" alt="Gallery Image 5" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
             <div class="gallery-item large">
                 <img src="Images/IMG-20260613-WA0049.jpg" alt="Gallery Image 6" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
             <div class="gallery-item">
                 <img src="Images/IMG-20260613-WA0050.jpg" alt="Gallery Image 7" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
             <div class="gallery-item">
                 <img src="Images/IMG-20260613-WA0051.jpg" alt="Gallery Image 8" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
             <div class="gallery-item">
                 <img src="Images/IMG-20260613-WA0052.jpg" alt="Gallery Image 9" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
             <div class="gallery-item">
                 <img src="Images/IMG-20260613-WA0053.jpg" alt="Gallery Image 10" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
             <div class="gallery-item large">
                 <img src="Images/IMG-20260613-WA0054.jpg" alt="Gallery Image 11" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
             <div class="gallery-item">
                 <img src="Images/IMG-20260613-WA0055.jpg" alt="Gallery Image 12" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
             <div class="gallery-item">
                 <img src="Images/IMG-20260613-WA0056.jpg" alt="Gallery Image 13" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
             <div class="gallery-item">
                 <img src="Images/IMG-20260613-WA0057.jpg" alt="Gallery Image 14" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
             <div class="gallery-item">
                 <img src="Images/IMG-20260613-WA0058.jpg" alt="Gallery Image 15" loading="lazy">
-                <div class="gallery-overlay">
-                    <i class="fas fa-expand"></i>
-                </div>
+                <div class="gallery-overlay"><i class="fas fa-expand"></i></div>
             </div>
         </div>
     </section>
@@ -354,7 +323,7 @@
         </div>
     </section>
 
-    <!-- Comments Section -->
+    <!-- Comments Preview Section (Homepage) -->
     <section id="comments" class="reveal">
         <div class="comments-section">
             <div class="section-header">
@@ -362,12 +331,11 @@
                 <p>Read what others have to say, or share your own experience.</p>
             </div>
 
-            <!-- Admin Panel -->
+            <!-- Admin Panel (hidden by default) -->
             <div class="admin-panel" id="adminPanel">
                 <div class="admin-status"><i class="fas fa-circle"></i> Admin Mode Active</div>
                 <h4>Admin Controls</h4>
                 <div class="admin-controls">
-                    <button onclick="clearAllComments()"><i class="fas fa-trash"></i> Clear All Reviews</button>
                     <button onclick="loadSampleComments()"><i class="fas fa-database"></i> Load Sample Data</button>
                     <button class="danger" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Logout</button>
                 </div>
@@ -389,9 +357,20 @@
                 </form>
             </div>
 
-            <!-- Comments List -->
+            <!-- Latest Comments Preview (max 3) -->
+            <div class="comments-preview-header">
+                <h3>Latest Reviews</h3>
+            </div>
             <div class="comments-list" id="commentsList">
-                <!-- Comments will be loaded here -->
+                <!-- Comments loaded from Google Sheets -->
+            </div>
+
+            <!-- See More Button -->
+            <div class="see-more-container">
+                <a href="reviews.html" class="see-more-btn">
+                    <i class="fas fa-comments"></i> See All Reviews
+                    <span class="see-more-count" id="seeMoreCount"></span>
+                </a>
             </div>
         </div>
     </section>
@@ -413,13 +392,13 @@
             </div>
         </div>
         <div class="social-links">
-            <a href="https://t.me/ALLMYHEART7" target="_blank" class="social-link">
-                <i class="fab fa-telegram"></i>
-                <span>Telegram</span>
-            </a>
-            <a href="https://wa.me/13027434221" target="_blank" class="social-link">
+            <a href="https://wa.me/16618160921" target="_blank" class="social-link">
                 <i class="fab fa-whatsapp"></i>
                 <span>WhatsApp</span>
+            </a>
+            <a href="https://signal.me/#eu/rBfvpwWZk23hRuSmadb9hV7aApelCJzSNLBcz4TN5seQ0WtCFOdFy5DOm5U5pr0d" target="_blank" class="social-link">
+                <i class="fas fa-comment"></i>
+                <span>Signal</span>
             </a>
         </div>
     </section>

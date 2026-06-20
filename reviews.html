@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Reviews - Ariana Sky Fun-House</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">Ariana <span>Sky</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#gallery">Gallery</a></li>
+                <li><a href="index.html#services">Services</a></li>
+                <li><a href="index.html#pricing">Pricing</a></li>
+                <li><a href="index.html#certificates">Certificates</a></li>
+                <li><a href="reviews.html">Reviews</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Reviews Page Header -->
+    <section class="reviews-page-header" style="padding-top: 8rem;">
+        <div class="section-header">
+            <h2>All Client Reviews</h2>
+            <p>Read honest feedback from those who have experienced my services.</p>
+        </div>
+    </section>
+
+    <!-- All Reviews Section -->
+    <section class="reviews-full">
+        <div class="comments-section" style="max-width: 900px; margin: 0 auto;">
+            <!-- Admin Panel (hidden by default) -->
+            <div class="admin-panel" id="adminPanel">
+                <div class="admin-status"><i class="fas fa-circle"></i> Admin Mode Active</div>
+                <h4>Admin Controls</h4>
+                <div class="admin-controls">
+                    <button onclick="loadSampleComments()"><i class="fas fa-database"></i> Load Sample Data</button>
+                    <button class="danger" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </div>
+
+            <!-- Comment Form -->
+            <div class="comment-form">
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.3rem;">Leave a Review</h3>
+                <form id="commentForm">
+                    <div class="form-group">
+                        <label for="commentName">Your Name</label>
+                        <input type="text" id="commentName" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="commentText">Your Review</label>
+                        <textarea id="commentText" placeholder="Share your experience..." required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn"><i class="fas fa-paper-plane"></i> Submit Review</button>
+                </form>
+            </div>
+
+            <!-- Reviews Count -->
+            <div class="reviews-count" id="reviewsCount">
+                <i class="fas fa-comments"></i> <span id="totalReviews">0</span> reviews
+            </div>
+
+            <!-- All Comments -->
+            <div class="comments-list" id="allCommentsList">
+                <!-- All comments loaded from Google Sheets -->
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination">
+                <button class="pagination-btn" id="prevPage" onclick="changePage(-1)">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span class="pagination-info" id="pageInfo">Page 1 of 1</span>
+                <button class="pagination-btn" id="nextPage" onclick="changePage(1)">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Back to Home -->
+    <section class="back-home" style="text-align: center; padding: 3rem 2rem;">
+        <a href="index.html" class="btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Ariana Sky</div>
+            <p class="footer-text">Licensed Massage Therapist & Professional Companion</p>
+            <div class="footer-links">
+                <a href="index.html#about">About</a>
+                <a href="index.html#gallery">Gallery</a>
+                <a href="index.html#services">Services</a>
+                <a href="index.html#pricing">Pricing</a>
+                <a href="index.html#certificates">Certificates</a>
+                <a href="reviews.html">Reviews</a>
+                <a href="index.html#contact">Contact</a>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 Ariana Sky Fun-House. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Admin Login Modal -->
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal">
+            <h3><i class="fas fa-lock"></i> Admin Access</h3>
+            <p>Enter your admin password to manage reviews and content.</p>
+            <div class="form-group">
+                <label for="adminPassword">Password</label>
+                <input type="password" id="adminPassword" placeholder="Enter admin password">
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeAdminModal()">Cancel</button>
+                <button class="btn-confirm" onclick="loginAdmin()">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Message</span>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // Reviews page specific: load all comments with pagination
+        const COMMENTS_PER_PAGE = 10;
+        let currentPage = 1;
+        let allCommentsData = [];
+
+        async function loadAllComments() {
+            const list = document.getElementById('allCommentsList');
+            const countEl = document.getElementById('totalReviews');
+
+            list.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading reviews...</div>';
+
+            try {
+                const response = await fetch(SHEET_API_URL + '?action=getComments');
+                const data = await response.json();
+
+                if (data.success) {
+                    allCommentsData = data.comments;
+                    countEl.textContent = allCommentsData.length;
+                    renderPaginatedComments();
+                } else {
+                    list.innerHTML = '<div class="no-comments"><i class="fas fa-exclamation-circle"></i><p>Could not load reviews. Please try again later.</p></div>';
+                }
+            } catch (err) {
+                list.innerHTML = '<div class="no-comments"><i class="fas fa-exclamation-circle"></i><p>Could not load reviews. Please check your connection.</p></div>';
+            }
+        }
+
+        function renderPaginatedComments() {
+            const list = document.getElementById('allCommentsList');
+            const totalPages = Math.ceil(allCommentsData.length / COMMENTS_PER_PAGE);
+
+            if (allCommentsData.length === 0) {
+                list.innerHTML = '<div class="no-comments"><i class="fas fa-comments"></i><p>No reviews yet. Be the first to share your experience!</p></div>';
+                document.getElementById('pagination').style.display = 'none';
+                return;
+            }
+
+            const start = (currentPage - 1) * COMMENTS_PER_PAGE;
+            const end = start + COMMENTS_PER_PAGE;
+            const pageComments = allCommentsData.slice(start, end);
+
+            list.innerHTML = pageComments.map((comment, index) => `
+                <div class="comment-item" data-index="${start + index}">
+                    <div class="comment-header">
+                        <div class="comment-author">
+                            <div class="comment-avatar">${comment.name.charAt(0).toUpperCase()}</div>
+                            <div class="comment-meta">
+                                <h4>${escapeHtml(comment.name)}</h4>
+                                <time>${formatDate(comment.timestamp)}</time>
+                            </div>
+                        </div>
+                        ${isAdmin ? `
+                            <div class="comment-actions">
+                                <button class="edit-btn" onclick="editComment('${comment.id}')" title="Edit">
+                                    <i class="fas fa-pen"></i>
+                                </button>
+                                <button onclick="deleteComment('${comment.id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="comment-text">${escapeHtml(comment.text)}</div>
+                </div>
+            `).join('');
+
+            // Update pagination
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages || totalPages === 0;
+            document.getElementById('pagination').style.display = totalPages > 1 ? 'flex' : 'none';
+        }
+
+        function changePage(direction) {
+            const totalPages = Math.ceil(allCommentsData.length / COMMENTS_PER_PAGE);
+            currentPage += direction;
+            if (currentPage < 1) currentPage = 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            renderPaginatedComments();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Override the homepage render for this page
+        if (document.getElementById('allCommentsList')) {
+            loadAllComments();
+        }
+    </script>
+</body>
+</html>
